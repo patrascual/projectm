@@ -1,3 +1,13 @@
+/**
+ * This tests the java.net.URL APIs.
+ * Methods that are implemented in the API and who's functionality is tested: 
+ * getFile - Return the file name of URL, or an empty string if one does not exist
+ * openConnection - Returns a URLConnection instance that represents a connection to the remote object referred to by the URL
+ * Class MalformedURLException - to indicate that a malformed URL has occurred
+ * 
+ * 
+ */
+
 package testNG;
 
 import static org.testng.Assert.assertEquals;
@@ -8,7 +18,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.commons.io.*;
 
 public class MyUnit {
 	public class MyUnitTest {
@@ -51,7 +60,7 @@ public class MyUnit {
 	    
 	    //Input for testConnection is provided by the dataprovider "reachableURLs"
 	    //This method tests if a wedaddress is reachable (HTTP 200 OK)
-	    @Test(dataProvider = "reachableURLs")
+	    @Test(dataProvider = "reachableURLs", description = "Test for reachable URLs")
 	    public void connect_ReachableAddress_Http200Response(String webaddress) throws Exception{
 	    	
 	    	URL url = new URL(webaddress);
@@ -68,11 +77,22 @@ public class MyUnit {
 	    	    }
 	    }
 	    
-	    @Test(dataProvider = "unreachableURLs")
+	    @Test(dataProvider = "unreachableURLs", description = "Test for unreachable URLs")
 	    public void connect_UnreachableAddress_Http404Response(String webaddress) throws Exception{
 	    	
 	        // .... similar with connect_ReachableAddress_Http200Response but different input
+	    		URL url = new URL(webaddress);
 	    	
+	    		try {
+	    				HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+	    				urlConn.connect();
+
+	    				assertEquals(HttpURLConnection.HTTP_NOT_FOUND, urlConn.getResponseCode());
+	    	    		} catch (IOException e) {
+	    	        System.err.println("Error accessing the site");
+	    	        e.printStackTrace();
+	    	        throw e;
+	    	    }
 	    }
 
 	    @Test(dataProvider = "invalidURLs", expectedExceptions = MalformedURLException.class, description="Test for MalformedURLException due to invalid input for constructor")
